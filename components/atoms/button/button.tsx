@@ -1,77 +1,59 @@
-import type { FC, ReactElement } from 'react';
-import { clsx } from 'clsx';
-import { P, match } from 'ts-pattern';
-import { TButton } from '@/entities';
-import Link from 'next/link';
+import { forwardRef } from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/utilities";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
-
-
-export const Button: FC<TButton> = ({
-  variant = 'primary',
-  size = 'sm',
-  variantType = 'solid',
-  state = 'default',
-  ...props
-}): ReactElement => {
-  const className = clsx(
-    'rounded-md hover:opacity-80 font-medium transition-all hover:cursor-pointer',
-    'disabled:cursor-not-allowed disabled:hover:opacity-80 disabled:bg-gray-200',
-    'text-sm px-4 py-2 text-center',
-    {
-      'border bg-transparent border-gray-200 text-gray-900':
-        variantType === 'outline',
-      'border-none': variantType === 'solid',
+const buttonVariants = cva(
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default: "bg-indigo-800 text-white shadow hover:bg-indigo-800/90",
+        destructive: "bg-red-600 text-red-100 shadow-sm hover:bg-red-600/90",
+        outline:
+          "border border-input bg-transparent shadow-sm hover:bg-white hover:text-gray-700",
+        secondary: "bg-blue-600 text-white shadow-sm hover:bg-blue-600/80",
+        ghost: "hover:bg-transparent hover:text-inherit",
+        link: "text-blue-600 underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-9 px-4 py-2",
+        sm: "h-8 rounded-md px-3 text-xs",
+        lg: "h-10 rounded-md px-8",
+        icon: "h-9 w-9",
+      },
     },
-    {
-      'bg-indigo-600 text-white': variant === 'primary' && variantType === 'solid',
-      'bg-indigo-500 text-white':
-        variant === 'secondary' && variantType === 'solid',
-      'bg-indigo-600  text-white': variant === 'success' && variantType === 'solid',
-      'bg-red-500  text-white': variant === 'error' && variantType === 'solid',
-      'bg-yellow-500 text-white': variant === 'warning' && variantType === 'solid',
-      'bg-blue-500  text-white': variant === 'info' && variantType === 'solid',
+    defaultVariants: {
+      variant: "default",
+      size: "default",
     },
-    {
-      'border-bg-indigo-600 text-indigo-600':
-        variant === 'primary' && variantType === 'outline',
-      'border-bg-indigo-500 text-indigo-500':
-        variant === 'secondary' && variantType === 'outline',
-      'border-green-500 text-green-500':
-        variant === 'success' && variantType === 'outline',
-      'border-bg-red-500 text-red-500':
-        variant === 'error' && variantType === 'outline',
-      'border-bg-yellow-500 text-yellow-500':
-        variant === 'warning' && variantType === 'outline',
-      'border-bg-blue-400 text-blue-400':
-        variant === 'info' && variantType === 'outline',
-    },
-    {
-      'md:text-sm md:px-2 md:py-1': size === 'sm',
-      'md:text-base md:px-4 md:py-2': size === 'md',
-      'md:text-xl md:px-6 md:py-3': size === 'lg',
-    },
-    {
-      'w-full': props.fullWidth === true,
-    }
-  );
-
-  const buttonState = match(state)
-    .with('default', () => props.children)
-    .with('loading', () => 'Loading...')
-    .exhaustive();
-
-  return match(props.href)
-    .with(undefined, () => (
-      <button className={className} {...props}>
-        {buttonState}
+  }
+);
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  isLoading?: boolean;
+}
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, isLoading, children, ...props }, ref) => {
+    return (
+      <button
+        ref={ref}
+        className={cn(buttonVariants({ variant, size, className }))}
+        disabled={isLoading}
+        {...props}
+      >
+        {isLoading ? (
+          <Icon
+            icon="eos-icons:loading"
+            className="mr-2 h-4 w-4 animate-spin"
+          />
+        ) : null}
+        {children}
       </button>
-    ))
-    .with(P.string, (link) => (
-      <Link href={link}>
-        <button className={className} {...props}>
-          {buttonState}
-        </button>
-      </Link>
-    ))
-    .exhaustive();
-};
+    );
+  }
+);
+Button.displayName = "Button";
+
+export { Button, buttonVariants };

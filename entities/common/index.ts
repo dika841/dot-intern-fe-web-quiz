@@ -1,5 +1,4 @@
 import type {
-  ButtonHTMLAttributes,
   DetailedHTMLProps,
   FormHTMLAttributes,
   HTMLAttributes,
@@ -48,18 +47,6 @@ export type TInputSpecial = Omit<
 > &
   TInputExtend;
 
-export type TButton = DetailedHTMLProps<
-  ButtonHTMLAttributes<HTMLButtonElement>,
-  HTMLButtonElement
-> & {
-  variant?: Omit<TVariant, "default" | "info">;
-  size?: TSize;
-  variantType?: TVariantType;
-  href?: string;
-  state?: TState;
-  fullWidth?: boolean;
-};
-
 export type TInputMolecule = {
   label?: string;
   message?: string;
@@ -91,7 +78,7 @@ export type TForm = DetailedHTMLProps<
   FormHTMLAttributes<HTMLFormElement>,
   HTMLFormElement
 >;
-export * from './style';
+export * from "./style";
 export type TMetaResponse<T = null | undefined> = {
   message?: string;
   data?: T;

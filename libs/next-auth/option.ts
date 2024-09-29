@@ -1,77 +1,72 @@
-import {  TMetaErrorResponse, VSLogin } from "@/entities";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { NextAuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import { PostLogin } from "@/app/(auth)/auth/login/_modules/login-api";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { prisma } from "../prisma-client";
+import { PrismaClient } from "@prisma/client";
+import { compare } from "bcrypt";
+
+const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: {
+          label: "Email",
+          type: "email",
+          placeholder: "you@example.com",
+        },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials) {
+          throw new Error("Missing credentials");
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        });
+
+        if (!user) {
+          throw new Error("No user found with the given email");
+        }
+
+        const isValid = await compare(credentials.password, user.password);
+
+        if (!isValid) {
+          throw new Error("Invalid password");
+        }
+
+        return { id: user.id, name: user.name, email: user.email };
+      },
+    }),
+  ],
+  session: {
+    strategy: "jwt",
+  },
   pages: {
     signIn: "/auth/login",
   },
-  adapter: PrismaAdapter(prisma),
-  secret: process.env.NEXTAUTH_SECRET,
-  session: { strategy: 'jwt' },
-  providers: [
-    CredentialsProvider({
-      id: "credentials",
-      name: "credentials",
-      credentials: {
-        email: { label: "email", type: "text", placeholder: "Email" },
-        password: { label: "password", type: "password" },
-      },
-      async authorize(credentials) {
-        try {
-          if (!credentials?.email || !credentials.password) {
-            throw new Error("Email dan Password cannot be empty");
-          }
-          const validatedFields = VSLogin.safeParse(credentials);
-
-          if (validatedFields.success) {
-            const { email, password } = validatedFields.data;
-            const user = await PostLogin({
-              email,
-              password,
-            });
-            console.log(user);
-            return user;
-          }
-
-          return null;
-
-        } catch (err) {
-
-          const error = err as TMetaErrorResponse;
-
-          throw new Error(
-            typeof error?.response?.data === "string"
-              ? error?.response?.data
-              : error?.response?.data?.message
-          );
-        }
-      },
-    }),
-
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-    }),
-  ],
-
   callbacks: {
-    async jwt({ token,account,profile, user }) {
-      if (account) {
-        token.accessToken = account.access_token;
-        token.user = user as any;
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
       }
-      return { ...token, ...user };
+      return token;
     },
-
     async session({ session, token }) {
-      console.log("Session Token:", token.accessToken);
-      session.user = token as any;
+      if (token && session.user) {
+        session.user.id = token.id;
+        session.user.email = token.email;
+      }
       return session;
     },
+    redirect() {
+      return "/playground";
+    },
   },
+  secret: process.env.NEXTAUTH_SECRET,
 };
+
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
