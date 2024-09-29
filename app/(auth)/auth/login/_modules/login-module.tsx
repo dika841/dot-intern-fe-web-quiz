@@ -1,13 +1,13 @@
 "use client";
 import { signIn } from "next-auth/react";
 import { FC, ReactElement, useState } from "react";
-import { Icon } from "@iconify/react";
 import { Button, ControlledFieldText, ToastWrapper } from "@/components";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TLoginRequest, VSLogin } from "@/entities";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 export const LoginModule: FC = (): ReactElement => {
   const [error, setError] = useState<string | undefined>(undefined);
@@ -110,26 +110,16 @@ export const LoginModule: FC = (): ReactElement => {
             <Button
               type="submit"
               disabled={!isValid || isLoading}
-              variant={"primary"}
-              size="md"
-              fullWidth
+              className="w-full"
             >
               Login
             </Button>
-            <span className="text-sm font-semibold text-gray-500">Or</span>
-            <Button
-              type="button"
-              onClick={() => signIn("google")}
-              variant={"secondary"}
-              size="md"
-              fullWidth
-              variantType="outline"
-            >
-              <div className="flex items-center space-x-2 justify-center">
-                <Icon icon={"logos:google-icon"} />
-                <p>Login with Google</p>
-              </div>
-            </Button>
+          </div>
+          <div className="flex items-center text-sm text-indigo-600 gap-x-1">
+            <span> Do not have account ? </span>
+            <Link href="/auth/register" className="underline">
+              Register
+            </Link>
           </div>
         </form>
       </div>

@@ -1,8 +1,10 @@
+import clsx, { ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 import { useState } from "react";
 
 export const useLocalStorage = <T>(key: string, initialValue: T) => {
   const [storedValue, setStoredValue] = useState<T>(() => {
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
       return initialValue;
     }
     try {
@@ -18,7 +20,7 @@ export const useLocalStorage = <T>(key: string, initialValue: T) => {
       const valueToStore =
         value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
       }
     } catch (error) {
@@ -32,3 +34,7 @@ export const useGetLocalStorage = <T>(key: string) => {
   const [value, setValue] = useLocalStorage<T>(key, {} as T);
   return [value, setValue] as const;
 };
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
