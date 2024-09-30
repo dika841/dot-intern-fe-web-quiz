@@ -5,14 +5,12 @@ import { Button, ControlledFieldText, ToastWrapper } from "@/components";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TLoginRequest, VSLogin } from "@/entities";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import Link from "next/link";
 
 export const LoginModule: FC = (): ReactElement => {
   const [error, setError] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const router = useRouter();
   const {
     control,
     handleSubmit,
@@ -31,13 +29,9 @@ export const LoginModule: FC = (): ReactElement => {
       const response = await signIn("credentials", {
         email: data.email,
         password: data.password,
-        redirect: false,
       });
       if (response?.ok) {
         toast.success("Login Successful");
-        setTimeout(() => {
-          router.push("/playground");
-        }, 1000);
       }
 
       if (response?.error) {
@@ -111,6 +105,7 @@ export const LoginModule: FC = (): ReactElement => {
               type="submit"
               disabled={!isValid || isLoading}
               className="w-full"
+              isLoading={isLoading}
             >
               Login
             </Button>

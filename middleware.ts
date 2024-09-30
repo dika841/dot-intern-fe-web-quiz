@@ -1,17 +1,39 @@
-import { getToken } from 'next-auth/jwt';
-import { NextFetchEvent, NextRequest, NextResponse } from 'next/server';
+import { getToken } from "next-auth/jwt";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function middleware(req: NextRequest, _event: NextFetchEvent) {
-  const session = await getToken({ req });
-  const url = req.nextUrl;
-  const loginUrl = new URL('/auth/login', url.origin);
-  const playgroundUrl = new URL('/playground', url.origin);
-  if (url.pathname.startsWith('/playground') && !session) {
-    return NextResponse.redirect(loginUrl);
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const isAuth = !!token;
+
+  const isLoginPage = pathname.startsWith("/auth/login");
+  const protectedRoutes = ["/playground"];
+  const isProtected = protectedRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  if (isLoginPage) {
+    if (isAuth) {
+      return NextResponse.redirect(new URL("/playground", req.url));
+    }
+    return NextResponse.next();
   }
-  if (url.pathname.startsWith('/auth') && session) {
-    return NextResponse.redirect(playgroundUrl);
+
+  if (isProtected && !isAuth) {
+    return NextResponse.redirect(new URL("/auth/login", req.url));
+  }
+
+  if (pathname === "/") {
+    if (isAuth) {
+      return NextResponse.redirect(new URL("/playground", req.url));
+    } else {
+      return NextResponse.redirect(new URL("/auth/login", req.url));
+    }
   }
 
   return NextResponse.next();
 }
+
+export const config = {
+  matcher: ["/", "/auth/login", "/playground/:path*"],
+};
