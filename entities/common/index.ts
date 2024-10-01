@@ -26,10 +26,6 @@ export type TVariant =
   | "info"
   | "error";
 
-export type TVariantType = "solid" | "outline";
-
-export type TState = "default" | "loading";
-
 export type TInputExtend = {
   size?: TSize;
   status?: Omit<TVariant, "primary" | "secondary">;
@@ -79,16 +75,3 @@ export type TForm = DetailedHTMLProps<
   HTMLFormElement
 >;
 export * from "./style";
-export type TMetaResponse<T = null | undefined> = {
-  message?: string;
-  data?: T;
-  meta?: {
-    total?: number;
-    totalPage?: number;
-    lastPage?: number;
-    currentPage?: number;
-    perPage?: number;
-    prev?: null | number;
-    next?: null | number;
-  };
-};

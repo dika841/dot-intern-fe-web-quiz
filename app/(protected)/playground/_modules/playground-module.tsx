@@ -149,7 +149,7 @@ export const PlaygroundModule: FC = (): ReactElement => {
 
   const handleQuizCompletion = () => {
     localStorage.removeItem("quizState");
-    router.push("/result");
+    router.push("/playground/result");
   };
 
   const formatTime = (): string => {

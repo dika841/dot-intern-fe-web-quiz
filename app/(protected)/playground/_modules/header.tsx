@@ -36,7 +36,7 @@ export const Header: FC = (): ReactElement => {
                 className="w-full text-left  text-sm text-white transition-all"
                 onClick={() => {
                   signOut();
-                  localStorage.clear();
+                  window.localStorage.removeItem("quizState");
                 }}
               >
                 Logout
