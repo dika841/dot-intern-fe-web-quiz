@@ -16,7 +16,9 @@ const Home: NextPage = (): ReactElement => {
           </span>
         </h1>
       </div>
-      <h2 className="text-2xl font-medium">Get ready to test your knowledge</h2>
+      <h2 className="text-2xl text-center font-medium">
+        Get ready to test your knowledge
+      </h2>
       <div className="flex gap-x-4 items-center ">
         <Button onClick={() => signIn()}>Login</Button>
         <Link
