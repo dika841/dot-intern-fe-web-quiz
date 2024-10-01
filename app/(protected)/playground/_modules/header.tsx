@@ -11,9 +11,11 @@ export const Header: FC = (): ReactElement => {
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
   return (
-    <header className="w-4/5 mx-auto rounded-xl mt-4 bg-indigo-900 text-white shadow-lg">
+    <header className="w-full md:w-4/5 mx-auto rounded-xl mt-4 bg-indigo-700 text-white shadow-lg">
       <div className="flex items-center justify-between w-full px-8 py-4">
-        <h1 className="text-lg font-semibold">Welcome to your Playground</h1>
+        <h1 className="text-sm md:text-lg font-semibold">
+          Welcome to your Playground
+        </h1>
         <div className="relative">
           <div
             className="flex items-center gap-x-2 cursor-pointer"
@@ -32,7 +34,10 @@ export const Header: FC = (): ReactElement => {
               <Button
                 variant="ghost"
                 className="w-full text-left  text-sm text-white transition-all"
-                onClick={() => signOut()}
+                onClick={() => {
+                  signOut();
+                  localStorage.clear();
+                }}
               >
                 Logout
               </Button>

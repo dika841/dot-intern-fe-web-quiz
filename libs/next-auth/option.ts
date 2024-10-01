@@ -60,8 +60,15 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    redirect() {
-      return "/playground";
+    async signIn({ user }) {
+      if (user) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+    async redirect({ url, baseUrl }) {
+      return baseUrl;
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

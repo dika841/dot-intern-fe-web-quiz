@@ -1,16 +1,18 @@
 "use client";
 import { signIn } from "next-auth/react";
-import { FC, ReactElement, useState } from "react";
+import React, { FC, ReactElement, useState } from "react";
 import { Button, ControlledFieldText, ToastWrapper } from "@/components";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TLoginRequest, VSLogin } from "@/entities";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export const LoginModule: FC = (): ReactElement => {
   const [error, setError] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
   const {
     control,
     handleSubmit,
@@ -29,6 +31,7 @@ export const LoginModule: FC = (): ReactElement => {
       const response = await signIn("credentials", {
         email: data.email,
         password: data.password,
+        redirect: false,
       });
       if (response?.ok) {
         toast.success("Login Successful");
@@ -36,6 +39,8 @@ export const LoginModule: FC = (): ReactElement => {
 
       if (response?.error) {
         setError(response.error);
+      } else {
+        router.push("/playground");
       }
     } catch (error) {
       console.log(error);
@@ -43,7 +48,7 @@ export const LoginModule: FC = (): ReactElement => {
     setIsLoading(false);
   });
   return (
-    <section className="min-h-screen flex items-center justify-center bg-gray-100">
+    <>
       <ToastWrapper />
       <div className="max-w-md w-full bg-white shadow-md rounded-lg p-8 space-y-4">
         <h2 className="text-2xl font-bold text-center">Login</h2>
@@ -118,6 +123,6 @@ export const LoginModule: FC = (): ReactElement => {
           </div>
         </form>
       </div>
-    </section>
+    </>
   );
 };
