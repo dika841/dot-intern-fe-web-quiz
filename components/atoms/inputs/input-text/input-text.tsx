@@ -1,8 +1,9 @@
 "use client";
 import React, { useId, forwardRef } from "react";
-import { cn } from "@/utilities";
+
 import { Icon } from "@iconify/react";
 import { TInput, className } from "@/entities";
+import { cn } from "@/utilities/cn";
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {}

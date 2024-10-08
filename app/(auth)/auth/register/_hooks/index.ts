@@ -3,8 +3,8 @@ import {
   TRegisterRequest,
   TRegisterResponse,
 } from "@/entities";
+import { PostRegister } from "@/services/auth/register-api";
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
-import { PostRegister } from "../_modules/register-api";
 
 export const useRegister = (): UseMutationResult<
   TRegisterResponse,

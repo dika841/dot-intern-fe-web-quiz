@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { FC, ReactElement, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useRegister } from "../hook";
+import { useRegister } from "../../app/(auth)/auth/register/_hooks";
 import { toast } from "react-toastify";
 import Link from "next/link";
 
@@ -31,8 +31,8 @@ export const RegisterModule: FC = (): ReactElement => {
         }, 1000);
       },
       onError: (error) => {
-        console.error("Error:", error);
         setError("Failed to register.");
+        toast.error(error.message);
       },
     });
   });

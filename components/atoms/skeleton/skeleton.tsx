@@ -1,4 +1,4 @@
-import { cn } from "@/utilities";
+import { cn } from "@/utilities/cn";
 import { FC, ReactElement } from "react";
 
 export const Skeleton: FC<React.HTMLAttributes<HTMLDivElement>> = ({
