@@ -7,6 +7,7 @@ import type {
 } from "react";
 import type { FieldValues, UseControllerProps } from "react-hook-form";
 import { AxiosError } from "axios";
+import { IQuestion } from "@/services/opentb/interface";
 export type TMetaItem = {
   code: number;
   status: string;
@@ -74,4 +75,13 @@ export type TForm = DetailedHTMLProps<
   FormHTMLAttributes<HTMLFormElement>,
   HTMLFormElement
 >;
+export interface QuizState {
+  token: string | null;
+  questions: IQuestion[];
+  currentQuestionIndex: number;
+  correctAnswersCount: number;
+  incorrectAnswersCount: number;
+  totalQuestionsAnswered: number;
+  timeLeft: number;
+}
 export * from "./style";

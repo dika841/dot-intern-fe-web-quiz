@@ -1,9 +1,8 @@
-
-import { NextPage } from "next";
 import { ReactElement } from "react";
-import { PlaygroundModule } from "./_modules/playground-module";
+import { NextPage } from "next";
+import { PlaygroundModule } from "@/components/pages";
 
- const PlaygroundPage:NextPage = ():ReactElement => {
-   return <PlaygroundModule/>
-}
+const PlaygroundPage: NextPage = (): ReactElement => {
+  return <PlaygroundModule />;
+};
 export default PlaygroundPage;

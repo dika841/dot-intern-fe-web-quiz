@@ -1,5 +1,3 @@
-import clsx, { ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 import { useState } from "react";
 
 export const useLocalStorage = <T>(key: string, initialValue: T) => {
@@ -36,7 +34,3 @@ export const useGetLocalStorage = <T>(key: string) => {
   const [value, setValue] = useLocalStorage<T>(key, {} as T);
   return [value, setValue] as const;
 };
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}

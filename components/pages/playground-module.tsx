@@ -1,23 +1,16 @@
 "use client";
+import React, { FC, ReactElement, useEffect, useState } from "react";
+import { Button, Skeleton } from "@/components";
 import {
   useTriviaQuestions,
   useTriviaToken,
 } from "@/services/opentb/trivia-hooks";
 import { useRouter } from "next/navigation";
-import React, { FC, ReactElement, useEffect, useState } from "react";
-import { Button, Skeleton } from "@/components";
-import { IQuestion } from "@/services/opentb/interface";
 import { Icon } from "@iconify/react";
-import { cn, useGetLocalStorage } from "@/utilities";
-
-export interface QuizState {
-  token: string | null;
-  questions: IQuestion[];
-  currentQuestionIndex: number;
-  correctAnswersCount: number;
-  totalQuestionsAnswered: number;
-  timeLeft: number;
-}
+import { useGetLocalStorage } from "@/utilities/local-storage-hooks";
+import { formatQuestion } from "@/helper";
+import { QuizState } from "@/entities/common";
+import { cn } from "@/utilities/cn";
 
 export const PlaygroundModule: FC = (): ReactElement => {
   const router = useRouter();
@@ -42,21 +35,12 @@ export const PlaygroundModule: FC = (): ReactElement => {
     questions: [],
     currentQuestionIndex: 0,
     correctAnswersCount: 0,
+    incorrectAnswersCount: 0,
     totalQuestionsAnswered: 0,
-    timeLeft: 600,
+    timeLeft: 300,
   });
 
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (storedValue?.token !== null && storedValue?.questions?.length > 0) {
-      try {
-        setQuizState(storedValue);
-      } catch (error) {
-        console.warn("Failed to parse quizState from localStorage:", error);
-      }
-    }
-  }, [storedValue]);
 
   useEffect(() => {
     if (
@@ -71,8 +55,13 @@ export const PlaygroundModule: FC = (): ReactElement => {
         token: triviaToken,
         questions: formattedQuestions,
       }));
+    } else if (
+      storedValue?.token !== null &&
+      storedValue?.questions?.length > 0
+    ) {
+      setQuizState(storedValue);
     }
-  }, [triviaToken, triviaData]);
+  }, [triviaToken, triviaData, storedValue]);
 
   useEffect(() => {
     window.localStorage.setItem("quizState", JSON.stringify(quizState));
@@ -92,31 +81,6 @@ export const PlaygroundModule: FC = (): ReactElement => {
     }
   }, [quizState.timeLeft]);
 
-  function decodeHtml(html: string): string {
-    let txt = document.createElement("textarea");
-    txt.innerHTML = html;
-    return txt.value;
-  }
-  function shuffle(array: string[]): string[] {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
-
-  function formatQuestion(question: IQuestion): IQuestion {
-    const correctAnswer = decodeHtml(question.correct_answer);
-    const incorrectAnswers = question.incorrect_answers.map(decodeHtml);
-    return {
-      ...question,
-      question: decodeHtml(question.question),
-      correct_answer: correctAnswer,
-      incorrect_answers: incorrectAnswers,
-      random_answers: shuffle([correctAnswer, ...incorrectAnswers]),
-    };
-  }
-
   const handleNextQuestion = (answer: string): void => {
     if (selectedAnswer) return;
 
@@ -129,6 +93,9 @@ export const PlaygroundModule: FC = (): ReactElement => {
         ? prev.correctAnswersCount + 1
         : prev.correctAnswersCount,
       totalQuestionsAnswered: prev.totalQuestionsAnswered + 1,
+      incorrectAnswersCount: !isCorrect
+        ? prev.incorrectAnswersCount + 1
+        : prev.incorrectAnswersCount,
     }));
 
     setSelectedAnswer(answer);
@@ -148,7 +115,6 @@ export const PlaygroundModule: FC = (): ReactElement => {
   };
 
   const handleQuizCompletion = () => {
-    localStorage.removeItem("quizState");
     router.push("/playground/result");
   };
 
@@ -164,10 +130,8 @@ export const PlaygroundModule: FC = (): ReactElement => {
       <section className="container h-full w-full mx-auto p-6 max-w-3xl">
         <Skeleton className="w-full h-12" />
         <div className="mb-4 mt-6">
-          <div className="flex justify-between mb-2">
-            <Skeleton className="w-1/5 h-5" />
-            <Skeleton className="w-1/6 h-5" />
-          </div>
+          <Skeleton className="w-1/5 h-5 mb-2" />
+
           <div>
             <Skeleton className="w-full h-2.5" />
           </div>
@@ -187,12 +151,12 @@ export const PlaygroundModule: FC = (): ReactElement => {
 
   if (isTokenError || isQuestionsError) {
     return (
-      <main className="flex items-center justify-center min-h-screen bg-gray-100">
+      <main className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <p className="text-red-500 text-xl">
             {tokenError?.message ||
               questionsError?.message ||
-              "Error fetching data"}
+              "Something went wrong. Please try again."}
           </p>
           <Button
             onClick={() => window.location.reload()}
@@ -207,22 +171,19 @@ export const PlaygroundModule: FC = (): ReactElement => {
   }
 
   return (
-    <section className="container mx-auto p-6 max-w-3xl">
+    <section className="container mx-auto p-2 max-w-3xl">
       <div className="bg-indigo-500 p-4 rounded-lg text-white mx-auto text-center shadow-lg my-6 flex items-center justify-center">
         <Icon icon="mdi:alarm" width={24} className="mr-2" />
-        <p className="text-xl font-semibold">
+        <h1 className="text-xl font-semibold">
           Time Remaining:
           <span className="ml-2 font-bold text-2xl">{formatTime()}</span>
-        </p>
+        </h1>
       </div>
       <div className="mb-6 px-2">
-        <div className="flex justify-between mb-2">
-          <span>
-            Question {quizState.currentQuestionIndex + 1} of{" "}
-            {quizState.questions.length}
-          </span>
-          <span>Correct Answers: {quizState.correctAnswersCount}</span>
-        </div>
+        <p className="mb-2">
+          Question {quizState.currentQuestionIndex + 1} of{" "}
+          {quizState.questions.length}
+        </p>
         <div className="w-full bg-gray-200 rounded-full h-2.5">
           <div
             className="bg-indigo-600 h-2.5 rounded-full"
@@ -253,7 +214,7 @@ export const PlaygroundModule: FC = (): ReactElement => {
                     onClick={() => handleNextQuestion(option)}
                     key={idx}
                     className={cn(
-                      "bg-gray-50 border border-gray-300 rounded-lg py-4 px-6 text-gray-700 text-lg hover:bg-indigo-500 hover:text-white transition cursor-pointer flex items-center justify-center",
+                      "bg-gray-50 border border-gray-300 rounded-lg py-4 px-6 text-gray-700 text-lg hover:bg-gradient-to-r hover:from-indigo-500  hover:to-fuchsia-500 hover:text-white transition cursor-pointer flex items-center justify-center",
                       {
                         "bg-green-500 text-white": selectedAnswer && isCorrect,
                         "bg-red-500 text-white": isSelected && !isCorrect,
