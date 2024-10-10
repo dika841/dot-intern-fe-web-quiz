@@ -40,7 +40,7 @@ export const QuizResult: FC = (): ReactElement => {
           </h2>
         </div>
         <div className="bg-indigo-500 size-40 text-white rounded-lg shadow-md p-2 space-y-4">
-          <h2 className="text-center font-medium">Total Questions</h2>
+          <h2 className="text-center font-medium">Questions Answered</h2>
           <Icon
             icon="mdi:question-mark"
             className="size-8 bg-fuchsia-500 rounded-md shadow-md mx-auto"
