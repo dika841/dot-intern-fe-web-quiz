@@ -9,8 +9,8 @@ export const VSLogin = z.object({
     .min(1, {
       message: "Email Cannot Be empty",
     }),
-  password: z.string({ required_error: "Password Cannot Be empty" }).min(1, {
-    message: "Password atleast have 4 character",
+  password: z.string({ required_error: "Password Cannot Be empty" }).min(8, {
+    message: "Password atleast have 8 character",
   }),
 });
 
