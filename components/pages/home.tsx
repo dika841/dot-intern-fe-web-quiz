@@ -19,7 +19,7 @@ export const HomeModule: FC = (): ReactElement => {
         Get ready to test your knowledge
       </h2>
       <div className="flex gap-x-4 items-center ">
-        <Button onClick={() => signIn()}>Login</Button>
+        <Button onClick={() => signIn()}>Login to start quiz</Button>
         <Link
           href="/auth/register"
           className={buttonVariants({ variant: "outline" })}
