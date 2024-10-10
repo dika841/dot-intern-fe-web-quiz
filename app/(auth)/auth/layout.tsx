@@ -5,8 +5,8 @@ interface LayoutProps {
   children: ReactNode;
 }
 export const metadata: Metadata = {
-  title: "Quiztify  | Login",
-  description: "Login",
+  title: "Quiztify  | Login & Register",
+  description: "Login and Register",
 };
 const Layout: FC<LayoutProps> = ({ children }) => (
   <main className="container min-h-screen flex items-center justify-center bg-gray-100">
